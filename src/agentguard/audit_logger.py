@@ -41,3 +41,7 @@ class AuditLogger:
         )
 
         return record_id
+    def list_records(self) -> list[dict]:
+        """Retrieve all audit records from DynamoDB."""
+        response = self._table.scan()
+        return response.get("Items", [])
