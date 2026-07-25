@@ -1,0 +1,35 @@
+# AgentGuard Risk Rules
+# Defines which tools are considered risky, and what AgentGuard should do about it.
+# This file can be edited without touching any Python code or redeploying the app.
+
+rules:
+  - tool_name: "transfer_funds"
+    risk_level: "high"
+    decision: "needs_approval"
+    reason: "Financial transfer actions require human approval before execution."
+
+  - tool_name: "delete_record"
+    risk_level: "high"
+    decision: "needs_approval"
+    reason: "Destructive/irreversible action requires human approval."
+
+  - tool_name: "send_email"
+    risk_level: "medium"
+    decision: "flag"
+    reason: "Outbound communication should be logged and reviewed, but not blocked."
+
+  - tool_name: "check_balance"
+    risk_level: "low"
+    decision: "allow"
+    reason: "Read-only action, no risk of unintended side effects."
+
+  - tool_name: "search_knowledge_base"
+    risk_level: "low"
+    decision: "allow"
+    reason: "Read-only retrieval action."
+
+# Default behavior for any tool NOT explicitly listed above.
+default:
+  risk_level: "medium"
+  decision: "flag"
+  reason: "Tool not explicitly classified — flagged for review as a precaution."
