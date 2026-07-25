@@ -6,11 +6,11 @@ Creates the FastAPI app and wires in all route modules.
 
 from dotenv import load_dotenv
 
-load_dotenv()  # MUST run before importing anything that creates AuditLogger
+load_dotenv()
 
 from fastapi import FastAPI
 
-from api.routes import audit
+from api.routes import approvals, audit
 
 app = FastAPI(
     title="AgentGuard API",
@@ -19,6 +19,7 @@ app = FastAPI(
 )
 
 app.include_router(audit.router)
+app.include_router(approvals.router)
 
 
 @app.get("/")
