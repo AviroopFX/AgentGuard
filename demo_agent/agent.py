@@ -9,6 +9,9 @@ before it's allowed to execute.
 import os
 
 from dotenv import load_dotenv
+
+load_dotenv()  # reads GOOGLE_API_KEY from your .env file
+
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.agents import create_agent
 

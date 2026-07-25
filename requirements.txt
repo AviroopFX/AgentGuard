@@ -4,3 +4,4 @@ langchain-google-genai
 langgraph
 langchain
 python-dotenv
+boto3

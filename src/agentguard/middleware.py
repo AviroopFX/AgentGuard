@@ -2,13 +2,15 @@
 Middleware for AgentGuard.
 
 Provides a decorator that wraps any tool function, intercepting calls
-before they execute and routing them through the PolicyEngine.
+before they execute, logging them to DynamoDB, and routing them through
+the PolicyEngine.
 """
 
 import functools
 import logging
 from typing import Any, Callable
 
+from agentguard.audit_logger import AuditLogger
 from agentguard.models import Decision, PolicyResult, ToolCall
 from agentguard.policy_engine import PolicyEngine
 
@@ -23,30 +25,29 @@ class ToolBlockedError(Exception):
 class ApprovalRequiredError(Exception):
     """Raised when a tool call needs human approval before it can run."""
 
-    def __init__(self, policy_result: PolicyResult):
+    def __init__(self, policy_result: PolicyResult, record_id: str):
         self.policy_result = policy_result
+        self.record_id = record_id
         super().__init__(
             f"Tool '{policy_result.tool_call.tool_name}' requires approval: "
-            f"{policy_result.reason}"
+            f"{policy_result.reason} (audit record: {record_id})"
         )
 
 
 class AgentGuard:
-    """Main entry point: wraps tool functions with policy enforcement."""
+    """Main entry point: wraps tool functions with policy enforcement and auditing."""
 
-    def __init__(self, policy_engine: PolicyEngine | None = None):
+    def __init__(
+        self,
+        policy_engine: PolicyEngine | None = None,
+        audit_logger: AuditLogger | None = None,
+    ):
         self.policy_engine = policy_engine or PolicyEngine()
+        self.audit_logger = audit_logger or AuditLogger()
 
     def protect(self, agent_id: str, session_id: str) -> Callable:
         """
-        Decorator that wraps a tool function with risk evaluation.
-
-        Usage:
-            guard = AgentGuard()
-
-            @guard.protect(agent_id="agent-1", session_id="session-1")
-            def transfer_funds(amount: float, to: str) -> str:
-                return f"Transferred {amount} to {to}"
+        Decorator that wraps a tool function with risk evaluation and auditing.
         """
 
         def decorator(tool_fn: Callable) -> Callable:
@@ -60,18 +61,23 @@ class AgentGuard:
                 )
 
                 result = self.policy_engine.evaluate(tool_call)
+
+                # Every evaluated call gets persisted to DynamoDB, regardless of outcome
+                record_id = self.audit_logger.log(result)
+
                 logger.info(
-                    "Tool call evaluated: tool=%s decision=%s risk=%s",
+                    "Tool call evaluated: tool=%s decision=%s risk=%s record_id=%s",
                     tool_call.tool_name,
                     result.decision,
                     result.risk_level,
+                    record_id,
                 )
 
                 if result.decision == Decision.BLOCK:
                     raise ToolBlockedError(result.reason)
 
                 if result.decision == Decision.NEEDS_APPROVAL:
-                    raise ApprovalRequiredError(result)
+                    raise ApprovalRequiredError(result, record_id)
 
                 if result.decision == Decision.FLAG:
                     logger.warning(
@@ -80,7 +86,6 @@ class AgentGuard:
                         result.reason,
                     )
 
-                # ALLOW or FLAG both proceed to actually run the tool
                 return tool_fn(*args, **kwargs)
 
             return wrapper
