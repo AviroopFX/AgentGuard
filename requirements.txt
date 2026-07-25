@@ -1,1 +1,6 @@
 pyyaml
+pytest
+langchain-google-genai
+langgraph
+langchain
+python-dotenv
