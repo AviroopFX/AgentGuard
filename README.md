@@ -90,6 +90,12 @@ docker compose up --build
 - API docs: http://localhost:8000/docs
 - Dashboard: http://localhost:8501
 
+**First run?** The dashboard starts empty — no data exists until an agent actually makes tool calls. In a separate terminal, run:
+```bash
+docker compose exec api python -m demo_agent.agent
+```
+Then refresh the dashboard to see real activity: an allowed call, a flagged call, and a pending approval.
+
 ### Option B: Local (manual)
 
 ```bash
@@ -107,7 +113,7 @@ uvicorn api.main:app --reload
 # Terminal 2
 streamlit run dashboard/app.py
 
-# Terminal 3 — run the demo agent
+# Terminal 3 — run the demo agent (this is what populates the dashboard with data)
 python -m demo_agent.agent
 ```
 
