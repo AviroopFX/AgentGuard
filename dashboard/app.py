@@ -8,7 +8,7 @@ built on top of the AgentGuard FastAPI backend.
 import requests
 import streamlit as st
 
-from styles import CUSTOM_CSS, risk_badge
+from styles import CUSTOM_CSS, risk_badge, status_badge
 
 import os
 
@@ -118,10 +118,13 @@ st.divider()
 st.subheader("📋 Full Audit Log")
 
 for record in audit_log:
+    status = record.get("status", "resolved")  # old records without a status field default here
     st.markdown(
         f"""
         <div class="record-card">
-            <div class="record-title">{record['tool_name']} {risk_badge(record['risk_level'])}</div>
+            <div class="record-title">
+                {record['tool_name']} {risk_badge(record['risk_level'])} {status_badge(status)}
+            </div>
             <div class="record-meta">
                 {record['timestamp']} • Agent: {record['agent_id']} • Decision: {record['decision']}
             </div>

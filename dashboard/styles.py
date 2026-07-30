@@ -25,7 +25,7 @@ CUSTOM_CSS = """
         font-family: 'Segoe UI', sans-serif;
     }
 
-    /* Risk badges */
+    /* Badges (shared base style for risk + status) */
     .badge {
         display: inline-block;
         padding: 4px 12px;
@@ -34,8 +34,10 @@ CUSTOM_CSS = """
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        margin-left: 6px;
     }
 
+    /* Risk badges */
     .badge-low {
         background-color: rgba(34, 197, 94, 0.15);
         color: #22c55e;
@@ -52,6 +54,31 @@ CUSTOM_CSS = """
         background-color: rgba(239, 68, 68, 0.15);
         color: #ef4444;
         border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    /* Status badges */
+    .badge-status-pending {
+        background-color: rgba(234, 179, 8, 0.15);
+        color: #eab308;
+        border: 1px solid rgba(234, 179, 8, 0.4);
+    }
+
+    .badge-status-approved {
+        background-color: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    .badge-status-rejected {
+        background-color: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .badge-status-resolved {
+        background-color: rgba(148, 163, 184, 0.15);
+        color: #94a3b8;
+        border: 1px solid rgba(148, 163, 184, 0.4);
     }
 
     /* Record cards for pending approvals */
@@ -82,3 +109,8 @@ CUSTOM_CSS = """
 def risk_badge(risk_level: str) -> str:
     """Return an HTML badge styled by risk level."""
     return f'<span class="badge badge-{risk_level.lower()}">{risk_level}</span>'
+
+
+def status_badge(status: str) -> str:
+    """Return an HTML badge styled by resolution status."""
+    return f'<span class="badge badge-status-{status.lower()}">{status.upper()}</span>'
