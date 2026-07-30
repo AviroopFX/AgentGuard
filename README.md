@@ -152,7 +152,6 @@ agentguard/
 - Migrate LLM provider from Gemini to AWS Bedrock (Claude)
 - Full agent resumption after approval (LangGraph checkpointing/persistence)
 - LLM-as-judge risk scoring, as an alternative to static rules
-- GitHub Actions CI
 
 ## License
 
